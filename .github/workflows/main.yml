@@ -80,6 +80,7 @@ jobs:
 
       - name: Apply Kubernetes manifests
         run: |
+          kubectl apply -f k8s/backendconfig.yml
           kubectl apply -f k8s/service.yml
           kubectl apply -f k8s/ingress.yml
           sed "s|\$PROJECT_ID|${{ env.PROJECT_ID }}|g" k8s/deployment.yml | kubectl apply -f -
