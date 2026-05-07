@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels: 
+        app: flask
+    spec: 
+      containers:
+        - name: flask-container
+          image: us-central1-docker.pkg.dev/shopbot-project/shopbot/flask-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - secretRef:
+                name: shopbot-secrets
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-app
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: react
+  template:
+    metadata:
+      labels:
+        app: react
+    spec:
+      containers:
+        - name: react
+          imagePullPolicy: Always
+          image: us-central1-docker.pkg.dev/shopbot-project/shopbot/react-app:latest
+          ports:
+            - containerPort: 3000
+
+
