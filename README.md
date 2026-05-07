@@ -6,13 +6,15 @@ A conversational product recommendation chatbot built on real Amazon Video Games
 
 ## UI
 
+> Screenshots taken from the live deployment running on Google Kubernetes Engine (GKE).
+
 **Landing screen** — ChatGPT-inspired search interface with suggestion chips for common queries.
 
 ![Home Screen](images/homescreen.png)
 
 **Chat view** — multi-turn conversation with context-aware responses grounded in real user reviews.
 
-![Reviews](images/reviews.png)
+![Reviews](images/recommendation.png)
 
 ---
 
@@ -117,17 +119,48 @@ HUGGINGFACEHUB_API_TOKEN=
 
 ## Deployment (GKE)
 
+The app is deployed on Google Kubernetes Engine with a fully automated CI/CD pipeline via GitHub Actions. Every push to `main` builds both Docker images, pushes them to Google Artifact Registry, and rolls out the update to the cluster with zero downtime.
+
+### Infrastructure overview
+
+```
+GitHub push to main
+        │
+        ▼
+GitHub Actions — build Flask + React images
+        │
+        ▼
+Google Artifact Registry (us-east1)
+        │
+        ▼
+GKE Cluster (us-central1) ◄── kubectl set image (rolling update)
+        │
+        ▼
+GCE Load Balancer
+   ├── /       → React frontend (NodePort service)
+   └── /chat   → Flask backend  (NodePort service)
+```
+
+### GCP services used
+
+| Service | Purpose |
+|---|---|
+| Google Kubernetes Engine | Hosts the Flask and React pods |
+| Artifact Registry | Private Docker image registry |
+| GCE Ingress / Cloud Load Balancing | Single external IP routing traffic to both services |
+| Cloud KMS (Google-managed) | Encryption at rest for Artifact Registry images |
+
+### CI/CD pipeline
+
+Secrets (Pinecone, Groq, HuggingFace) are stored in GitHub Actions secrets and injected into a Kubernetes `Secret` resource at deploy time — they never touch the repository. The pipeline also applies all Kubernetes manifests (services, ingress, backendconfig, Prometheus) on every run so the cluster stays in sync with the repo.
+
+### First-time manual setup
+
 ```bash
-# 1. Build and push images
-docker build -t gcr.io/<project>/flask-app . -f backend/Dockerfile
-docker build -t gcr.io/<project>/react-app ./frontend -f frontend/Dockerfile
-docker push gcr.io/<project>/flask-app
-docker push gcr.io/<project>/react-app
+# Authenticate kubectl to the cluster
+gcloud container clusters get-credentials <cluster-name> --region us-central1
 
-# 2. Create secrets
-kubectl create secret generic shopbot-secrets --from-env-file=.env
-
-# 3. Apply manifests
+# Apply manifests (handled automatically by CI/CD after first run)
 kubectl apply -f prometheus/namespace.yml
 kubectl apply -f prometheus/
 kubectl apply -f k8s/
