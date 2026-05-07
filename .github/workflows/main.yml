@@ -9,7 +9,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GAR_LOCATION: us-central1
+  GAR_LOCATION: us-east1
   GAR_REPOSITORY: videogamerecommendation
   GKE_CLUSTER: videogamerecommendation-cluster
   GKE_ZONE: us-central1-a
