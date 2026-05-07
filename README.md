@@ -167,3 +167,36 @@ kubectl apply -f k8s/
 ```
 
 The GCE Ingress routes `/chat` to the Flask service and `/` to the React service through a single GCP load balancer.
+
+---
+
+## Monitoring (Prometheus)
+
+Prometheus is deployed in the `monitoring` namespace alongside the app and scrapes metrics from the Flask backend every 15 seconds.
+
+### Accessing Prometheus
+
+Prometheus was accessed via `kubectl port-forward` from Cloud Shell, forwarding the pod's port 9090 to port 8080 and using Cloud Shell's Web Preview:
+
+```bash
+kubectl port-forward -n monitoring <prometheus-pod-name> 8080:9090
+```
+
+Then **Web Preview → Preview on port 8080** in the Cloud Shell toolbar.
+
+### Verifying scrape targets
+
+Running the `up` query in the Prometheus UI confirms which targets are being scraped:
+
+![Prometheus up status](images/prometheus_up_status.png)
+
+- `up{job="prometheus"}` = **1** — Prometheus is scraping itself successfully
+- `up{job="flask-app", instance="flask-service.default.svc.cluster.local:5000"}` = **0** — Flask scrape target is reachable but not yet returning metrics (Prometheus metrics endpoint needs to be wired up to the `/metrics` route)
+
+### Next steps
+
+Grafana is deployed in the same `monitoring` namespace and connects to Prometheus internally via:
+```
+http://prometheus-service.monitoring.svc.cluster.local:9090
+```
+Access Grafana on NodePort `32002` and import a pre-built Flask dashboard (Grafana ID `11074`) to visualise request rates, latency, and error counts.
