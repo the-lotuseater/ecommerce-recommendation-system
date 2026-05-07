@@ -14,7 +14,7 @@ def init():
     global rag_chain
     rag_chain = RAGChainBuilder(vector_store).build_chain()
 
-@app.route('/')
+@app.route('/health')
 def health_probe():
     return 'OK'
 
