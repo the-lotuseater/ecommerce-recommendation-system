@@ -14,7 +14,7 @@ spec:
     spec: 
       containers:
         - name: flask-container
-          image: flask-app:latest
+          image: us-central1-docker.pkg.dev/shopbot-project/shopbot/flask-app:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -40,7 +40,7 @@ spec:
       containers:
         - name: react
           imagePullPolicy: Always
-          image: react-app:latest
+          image: us-central1-docker.pkg.dev/shopbot-project/shopbot/react-app:latest
           ports:
             - containerPort: 3000
 
