@@ -1,6 +1,6 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-ENV PYTHONWRITEBYTECODE=1\
+ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -e .
 
 EXPOSE 5000
 
-CMD ["python", "application.py"]
+CMD ["python", "-m", "backend.server"]
