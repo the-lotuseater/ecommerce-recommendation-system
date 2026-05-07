@@ -14,6 +14,10 @@ def init():
     global rag_chain
     rag_chain = RAGChainBuilder(vector_store).build_chain()
 
+@app.route('/health')
+def health_probe():
+    return 'OK'
+
 @app.route("/chat", methods=["POST"])
 def get_response():
     user_input = request.form['msg']
