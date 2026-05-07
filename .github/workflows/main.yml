@@ -84,6 +84,11 @@ jobs:
           kubectl apply -f prometheus/configmap.yml
           kubectl apply -f prometheus/deployment.yml
 
+          kubectl apply -f grafana/deployment.yml
+          kubectl apply -f grafana/service.yml
+
+
+
           kubectl apply -f k8s/backendconfig.yml
           kubectl apply -f k8s/service.yml
           kubectl apply -f k8s/ingress.yml
