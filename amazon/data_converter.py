@@ -28,12 +28,15 @@ class DataConverter:
         merged_df.to_csv(os.path.join("data", "merged_Video_Games.csv"), index=False)
 
 
-    def convert(self, max_docs: int = 5000):
+    def convert(self, max_docs: int=0):
         # self.load()##merge metadata and video game dfs into merged df
-        df = pd.read_csv(self.merged_file_path)[['title', 'reviewText']].dropna().head(max_docs)
+        if max_docs>0:
+            df = pd.read_csv(self.merged_file_path)[['title', 'reviewText']].dropna().head(max_docs)
+        else:#by default load the whole merged csv
+            df = pd.read_csv(self.merged_file_path)[['title', 'reviewText']].dropna()
         docs = [
             Document(
-                page_content=re.sub(r'[\x00-\x1f\x7f]', ' ', str(row['reviewText']))[:512],
+                page_content=re.sub(r'[\x00-\x1f\x7f]', ' ', str(row['reviewText'])),
                 metadata={"product_name": str(row['title'])}
             )
             for _, row in df.iterrows()
